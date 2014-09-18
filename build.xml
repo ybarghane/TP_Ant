@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Compilation d'ElementZ" default="jar">
+
+	<property file="build.properties"/>
+	
+	<!--
+	<property name="obj.dir" value="bin"/>
+	<property name="src.dir" value="src"/>
+	<property name="test.dir" value="test"/>
+	<property name="test.results.dir" value="${obj.dir}/test-results"/>
+	<property name="libs.dir" value="libs"/>
+	<property name="version" value="1.2.0"/>
+	<property name="compile.classpath" value="${libs.dir}/eventbus-1.4.jar"/>
+	<property name="test.classpath" value="${obj.dir}:${libs.dir}/eventbus-1.4.jar:${libs.dir}/junit-4.8.2.jar"/>
+	-->
+
+	<target name="clean">
+		<delete dir="${obj.dir}"/>
+		<delete dir="${test.reports}"/>
+		<echo message="suppression du rep ${obj.dir}"/>
+		<echo message="suppression du rep ${test.reports}"/>
+	</target>
+
+	<target name="compile" description="Compilation de l'application" depends="clean">
+		<mkdir dir="${obj.dir}"/>
+		<javac srcdir="${src.dir}" destdir="${obj.dir}" classpath="${compile.classpath}" source="1.6" fork="true"/>
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar destfile="ElementZ.jar">
+			<manifest>
+				<attribute name="Build-By" value="Youssef BARGHANE"/>
+				<attribute name="Implementation-Version" value="${version}"/>
+				<attribute name="Main-Class" value="org.ubo.elementz.Application_Jeu"/>
+				<attribute name="Class-Path" value="${libs.dir}/eventbus-1.4.jar"/>
+			</manifest>
+			<fileset dir="${src.dir}">
+				<include name="org/**/*.properties"/>
+				<type type="file"/>
+			</fileset>
+			<fileset dir="${obj.dir}"/>
+		</jar>
+	</target>
+	
+	<target name="compile-test" description="Compilation des class tests" depends="compile">
+		<javac srcdir="${test.dir}" destdir="${obj.dir}" classpath="${test.classpath}" source="1.6" fork="true"/>
+	</target>
+	
+	<target name="test" depends="compile-test">
+		<mkdir dir="${test.results.dir}"/>
+		<junit>
+			<classpath>
+				<pathelement path="${test.classpath}"/>
+			</classpath>
+			<formatter type="plain"/>
+			<formatter type="xml"/>
+			<batchtest todir="${test.results.dir}">
+				<fileset dir="${obj.dir}" includes="**/*Test.class"/>
+			</batchtest>
+		</junit>
+	</target>
+	
+	<target name="test-reports" depends="test">
+		<mkdir dir="${test.reports}"/>
+		<junitreport todir="${test.reports}">
+			<fileset dir="${test.results.dir}">
+				<include name="TEST-*.xml"/>
+			</fileset>
+			<report format="noframes" todir="${test.reports}"/>
+		</junitreport>
+	</target>
+	
+	
+
+</project>
